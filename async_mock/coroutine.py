@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import Mock
+from unittest.mock import MagicMock
 
 def SimpleCoroutineMock(f=lambda *args, **kwargs: None, loop=None):
     builder = CoroutineMockBuilder(loop=loop)
@@ -35,7 +35,7 @@ class CoroutineMock(object):
                 self.__start.clear()
                 self.__end.set()
 
-        return Mock(wraps=cr)
+        return MagicMock(wraps=cr)
 
     def start(self):
         return self.__start

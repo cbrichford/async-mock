@@ -1,7 +1,7 @@
 from distutils.core import setup
 setup(
   name = 'async-mock',
-  version = '1.0.1',
+  version = '1.0.2',
   description = 'asyncio mocker builder library',
   author = 'Christopher Brichford',
   author_email = 'chrisb@farmersbusinessnetwork.com',
