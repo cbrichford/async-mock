@@ -1,19 +1,21 @@
-class MagicMockAsyncContextWrapper:
+from unittest.mock import MagicMock, PropertyMock
+
+class MagicMockAsyncContextWrapper(MagicMock):
     """
     MagicMock doesn't like working as an AsyncContextManager with __aenter__/__aexit__,
-        so this is a workaround for that.  Calling MagicMockAsyncContextWrapper(obj) on an object created by
-        CoroutineBuilder will wrap it in this class, enabling its use in an async with.
+        so this is a workaround for that.  Just use an instance of this instead of MagicMock,
+        and aenter/aexit can be defined as normal using the CoroutineMock
 
-    Bug this is working around: https://bugs.python.org/issue26467
+    setProperty allows the caller to simulate properties on the mock object.  you must use .setProperty for each
+        update to the property, setting it directly will not work.
     """
-    def __init__(self, obj):
-        self._obj = obj
-
-    def __getattr__(self, item):
-        return self._obj.__getattr__(item)
-
     async def __aenter__(self):
-        return await self._obj.__aenter__()
+        aenter = super().__getattribute__('__aenter__')
+        return await aenter()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        return await self._obj.__aexit__(exc_type, exc_val, exc_tb)
+    async def __aexit__(self, *args, **kwargs):
+        aexit = super().__getattribute__('__aexit__')
+        return await aexit(*args, **kwargs)
+
+    def setProperty(self, key, value):
+        setattr(type(self), key, PropertyMock(return_value=value))
