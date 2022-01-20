@@ -1,8 +1,8 @@
 import asyncio
 from unittest.mock import MagicMock
 
-def SimpleCoroutineMock(f=lambda *args, **kwargs: None, loop=None):
-    builder = CoroutineMockBuilder(loop=loop)
+def SimpleCoroutineMock(f=lambda *args, **kwargs: None):
+    builder = CoroutineMockBuilder()
     return builder.addDelegate(f).build().mock()
 
 
@@ -11,9 +11,9 @@ class CoroutineMock(object):
     # Handy for debugging failing tests in the debugger.
     __blocking_dict = {}
 
-    def __init__(self, loop, returnSequence, block:asyncio.Event):
-        self.__startingEvent = asyncio.Event(loop=loop)
-        self.__endingEvent = asyncio.Event(loop=loop)
+    def __init__(self, returnSequence, block:asyncio.Event):
+        self.__startingEvent = asyncio.Event()
+        self.__endingEvent = asyncio.Event()
         self.__returnSequence = tuple(returnSequence)
         if (len(self.__returnSequence) < 1):
             self.__returnSequence = (lambda *args, **kwargs: None, )
@@ -68,13 +68,12 @@ class CoroutineMock(object):
 
 
 class CoroutineMockBuilder(object):
-    def __init__(self, loop):
-        self.__loop = loop
+    def __init__(self):
         self.__block = None
         self.__returnSequence = []
 
     def blocks(self):
-        return self.blocksOn(asyncio.Event(loop=self.__loop))
+        return self.blocksOn(asyncio.Event())
 
     def blocksOn(self, event:asyncio.Event):
         self.__block = event
@@ -97,4 +96,4 @@ class CoroutineMockBuilder(object):
         return self
 
     def build(self):
-        return CoroutineMock(self.__loop, self.__returnSequence, self.__block)
+        return CoroutineMock(self.__returnSequence, self.__block)
